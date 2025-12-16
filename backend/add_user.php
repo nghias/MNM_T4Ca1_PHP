@@ -1,57 +1,69 @@
 <?php
-// Cho phép truy cập từ mọi nguồn (hoặc thay * bằng http://deloyfe.somee.com)
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Credentials: true");
+// ===== BẮT BUỘC: Đặt CORS headers ở ĐẦU FILE =====
+header("Access-Control-Allow-Origin: http://deloyfe.somee.com"); // Thay * bằng domain cụ thể
 header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
 header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header("Access-Control-Allow-Credentials: true");
 header("Content-Type: application/json; charset=UTF-8");
 
-// Xử lý preflight request (của trình duyệt)
+// Xử lý preflight request
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     http_response_code(200);
     exit();
 }
 
-header("Content-Type: application/json; charset=UTF-8");
-
-// 2. Thông tin kết nối (Lấy từ hình ảnh bạn gửi)
+// Thông tin kết nối
 $servername = "sql100.infinityfree.com";
 $username   = "if0_40577807";
 $password   = "Nghia13052004";
-$dbname     = "if0_40577807_demo"; // Tên DB đầy đủ (như hướng dẫn ở Bước 1)
+$dbname     = "if0_40577807_demo";
 
-// 3. Kết nối Database
+// Kết nối Database
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 // Kiểm tra kết nối
 if ($conn->connect_error) {
-    echo json_encode(["status" => "error", "message" => "Kết nối DB thất bại: " . $conn->connect_error]);
+    http_response_code(500);
+    echo json_encode([
+        "status" => "error", 
+        "message" => "Kết nối DB thất bại: " . $conn->connect_error
+    ]);
     exit();
 }
 
-// 4. Nhận dữ liệu JSON từ Somee
+// Nhận dữ liệu JSON
 $json_data = file_get_contents("php://input");
-$data = json_decode($json_data);
+$data = json_decode($json_data, true); // Thêm true để convert sang array
 
-// Kiểm tra dữ liệu có tồn tại không
-if(isset($data->username) && isset($data->email) && !empty($data->username) && !empty($data->email)){
+// Kiểm tra dữ liệu
+if(!empty($data['username']) && !empty($data['email'])){
     
-    // Chống SQL Injection
-    $user = $conn->real_escape_string($data->username);
-    $email = $conn->real_escape_string($data->email);
+    // Sử dụng Prepared Statement (An toàn hơn real_escape_string)
+    $stmt = $conn->prepare("INSERT INTO users (username, email) VALUES (?, ?)");
+    $stmt->bind_param("ss", $data['username'], $data['email']);
 
-    // Câu lệnh Insert
-    $sql = "INSERT INTO users (username, email) VALUES ('$user', '$email')";
-
-    if ($conn->query($sql) === TRUE) {
-        echo json_encode(["status" => "success", "message" => "Thêm thành công user: " . $user]);
+    if ($stmt->execute()) {
+        http_response_code(200);
+        echo json_encode([
+            "status" => "success", 
+            "message" => "Thêm thành công user: " . $data['username']
+        ]);
     } else {
-        echo json_encode(["status" => "error", "message" => "Lỗi SQL: " . $conn->error]);
+        http_response_code(500);
+        echo json_encode([
+            "status" => "error", 
+            "message" => "Lỗi SQL: " . $stmt->error
+        ]);
     }
+    
+    $stmt->close();
 } else {
-    echo json_encode(["status" => "error", "message" => "Vui lòng nhập đầy đủ Username và Email!"]);
+    http_response_code(400);
+    echo json_encode([
+        "status" => "error", 
+        "message" => "Vui lòng nhập đầy đủ Username và Email!"
+    ]);
 }
-// đâ
 
 $conn->close();
 ?>
