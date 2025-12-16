@@ -41,7 +41,7 @@ try {
         'count' => count($data),
         'data' => $data
     ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-
+// dsa
 } catch (\PDOException $e) {
     // Xử lý lỗi kết nối
     http_response_code(500);
