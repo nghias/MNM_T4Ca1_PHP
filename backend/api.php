@@ -30,7 +30,7 @@ if ($result->num_rows > 0) {
         $data[] = $row;
     }
 }
-
+// fafaf
 // Trả về dữ liệu dạng JSON
 header('Content-Type: application/json');
 echo json_encode($data);
