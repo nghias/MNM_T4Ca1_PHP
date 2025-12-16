@@ -1,13 +1,31 @@
 version: '3.8'
 
 services:
-  app:
-    build: .
-    container_name: mnm_php_app
+  # Dịch vụ 1: Backend PHP
+  backend:
+    build: ./backend             # Đường dẫn tới thư mục chứa Dockerfile backend
+    container_name: mnm_php_backend
     ports:
-      - "8080:80" # Map port 80 trong container ra port 8080 của máy
+      - "3000:80"                # Map port 80 trong container ra port 3000 máy ngoài
     volumes:
-      # Mount thư mục để code thay đổi thì server cập nhật ngay (Dev mode)
-      - ./frontend:/var/www/html
-      - ./backend:/var/www/html/backend
-    restart: always
+      - ./backend:/var/www/html  # Mount code để sửa đổi trực tiếp
+    networks:
+      - app-network
+
+  # Dịch vụ 2: Frontend HTML
+  frontend:
+    build: ./frontend            # Đường dẫn tới thư mục chứa Dockerfile frontend
+    container_name: mnm_php_frontend
+    ports:
+      - "8081:80"                # Map port 80 trong container ra port 8081 máy ngoài
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+    depends_on:
+      - backend                  # Frontend sẽ chạy sau khi Backend đã bật
+    networks:
+      - app-network
+
+# Tạo mạng chung để 2 container nhìn thấy nhau (nếu cần gọi nội bộ)
+networks:
+  app-network:
+    driver: bridge
