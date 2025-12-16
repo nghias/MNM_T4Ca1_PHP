@@ -202,7 +202,15 @@
     </div>
 
     <script>
+        // CHỌN 1 TRONG 2 CÁCH:
+        
+        // CÁCH 1: Dùng fetch (cần CORS)
         const API_URL = 'http://mnm-t4cal.free.nf/get_users.php';
+        const USE_JSONP = false;
+        
+        // CÁCH 2: Dùng JSONP (không cần CORS) - Đổi thành true nếu CORS lỗi
+        // const API_URL = 'http://mnm-t4cal.free.nf/get_users_jsonp.php';
+        // const USE_JSONP = true;
         
         // Hàm format ngày giờ
         function formatDateTime(dateString) {
@@ -241,18 +249,26 @@
             showStatus('Đang tải dữ liệu...', 'loading');
             
             try {
-                const response = await fetch(API_URL, {
-                    method: 'GET',
-                    headers: {
-                        'Content-Type': 'application/json'
+                let result;
+                
+                if (USE_JSONP) {
+                    // Dùng JSONP
+                    result = await loadViaJSONP();
+                } else {
+                    // Dùng fetch thông thường
+                    const response = await fetch(API_URL, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
                     }
-                });
-                
-                if (!response.ok) {
-                    throw new Error(`HTTP error! status: ${response.status}`);
+                    
+                    result = await response.json();
                 }
-                
-                const result = await response.json();
                 
                 // Xóa nội dung cũ
                 tableBody.innerHTML = '';
@@ -293,6 +309,29 @@
                     hideStatus();
                 }, 3000);
             }
+        }
+        
+        // Hàm load dữ liệu qua JSONP (không cần CORS)
+        function loadViaJSONP() {
+            return new Promise((resolve, reject) => {
+                const callbackName = 'jsonpCallback_' + Date.now();
+                const script = document.createElement('script');
+                
+                window[callbackName] = function(data) {
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+                    resolve(data);
+                };
+                
+                script.src = API_URL + '?callback=' + callbackName;
+                script.onerror = () => {
+                    delete window[callbackName];
+                    document.body.removeChild(script);
+                    reject(new Error('JSONP request failed'));
+                };
+                
+                document.body.appendChild(script);
+            });
         }
         
         // Tự động load khi trang được tải
