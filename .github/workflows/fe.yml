@@ -1,27 +1,27 @@
-name: Deploy Frontend (Somee)
-
+name: Deploy Frontend to InfinityFree
 on:
   push:
-    branches: ["main"]
+    branches:
+      - main
     paths:
-      - 'frontend/**'
+      - 'frontend/**' # Chỉ chạy khi có thay đổi ở thư mục backend
 
 jobs:
-  deploy-fe:
+  api-deploy:
+    name: Deploy Backend PHP
     runs-on: ubuntu-latest
-    name: Deploy HTML/PHP to Somee
     steps:
-      - name: 🚚 Lấy code mới nhất
-        uses: actions/checkout@v4
+      - name: Lấy code mới nhất
+        uses: actions/checkout@v2
+
+      - name: Upload Backend lên thư mục con (htdocs/backend)
+        uses: SamKirkland/FTP-Deploy-Action@4.3.0
         with:
-          fetch-depth: 0
-      
-      - name: 🚀 Upload lên Somee qua FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          # Đảm bảo dùng biến SOMEE (không phải IF)
-          server: ${{ secrets.SOMEE_FTP_SERVER }} 
-          username: ${{ secrets.SOMEE_FTP_USERNAME }}
-          password: ${{ secrets.SOMEE_FTP_PASSWORD }}
-          local-dir: ./frontend/
-          server-dir: /www.deloyfe.somee.com/
+          server: ftpupload.net
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./frontend/       # Lấy code từ thư mục này ở GitHub
+          server-dir: htdocs/ # Đẩy vào thư mục con 'backend' trên Host
+          exclude: |
+            **/.git*
+            **/.git*/**
