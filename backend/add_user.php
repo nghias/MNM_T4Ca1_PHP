@@ -50,6 +50,7 @@ if(isset($data->username) && isset($data->email) && !empty($data->username) && !
 } else {
     echo json_encode(["status" => "error", "message" => "Vui lòng nhập đầy đủ Username và Email!"]);
 }
+// đâ
 
 $conn->close();
 ?>
