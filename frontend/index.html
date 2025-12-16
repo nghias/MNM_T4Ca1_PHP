@@ -3,339 +3,99 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh sách Users</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-            padding: 30px;
-        }
-        
-        h1 {
-            color: #667eea;
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 2.5em;
-        }
-        
-        .controls {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-        
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 12px 30px;
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 16px;
-            font-weight: 600;
-            transition: transform 0.2s, box-shadow 0.2s;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn:active {
-            transform: translateY(0);
-        }
-        
-        .status {
-            padding: 10px 20px;
-            border-radius: 8px;
-            font-weight: 600;
-        }
-        
-        .status.loading {
-            background: #ffeaa7;
-            color: #d63031;
-        }
-        
-        .status.success {
-            background: #00b894;
-            color: white;
-        }
-        
-        .status.error {
-            background: #d63031;
-            color: white;
-        }
-        
-        .table-wrapper {
-            overflow-x: auto;
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
-        }
-        
-        thead {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
-        
-        th, td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #ddd;
-        }
-        
-        th {
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 14px;
-            letter-spacing: 1px;
-        }
-        
-        tbody tr {
-            transition: background 0.2s;
-        }
-        
-        tbody tr:hover {
-            background: #f8f9fa;
-        }
-        
-        tbody tr:nth-child(even) {
-            background: #f8f9fa;
-        }
-        
-        tbody tr:nth-child(even):hover {
-            background: #e9ecef;
-        }
-        
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: #6c757d;
-        }
-        
-        .empty-state svg {
-            width: 120px;
-            height: 120px;
-            margin-bottom: 20px;
-            opacity: 0.3;
-        }
-        
-        .empty-state h3 {
-            font-size: 24px;
-            margin-bottom: 10px;
-        }
-        
-        .empty-state p {
-            font-size: 16px;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        .spinner {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid rgba(255,255,255,.3);
-            border-radius: 50%;
-            border-top-color: white;
-            animation: spin 1s ease-in-out infinite;
-        }
-    </style>
+    <title>Danh Sách User</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
-<body>
-    <div class="container">
-        <h1>📋 Danh sách Users</h1>
+<body class="bg-light">
+
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Danh sách User từ InfinityFree</h2>
         
-        <div class="controls">
-            <button class="btn" onclick="loadUsers()">
-                <span id="btnText">🔄 Tải lại dữ liệu</span>
-            </button>
-            <div class="status" id="status"></div>
+        <div class="text-center mb-3">
+            <button onclick="loadData()" class="btn btn-success">🔄 Tải dữ liệu mới nhất</button>
         </div>
-        
-        <div class="table-wrapper">
-            <table id="userTable" style="display: none;">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Username</th>
-                        <th>Email</th>
-                        <th>Ngày tạo</th>
-                    </tr>
-                </thead>
-                <tbody id="userTableBody">
-                </tbody>
-            </table>
-            
-            <div class="empty-state" id="emptyState" style="display: none;">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                </svg>
-                <h3>Chưa có dữ liệu</h3>
-                <p>Hiện tại chưa có user nào trong database</p>
+
+        <div class="card shadow">
+            <div class="card-body">
+                <table class="table table-striped table-hover">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                        </tbody>
+                </table>
+                <div id="loading" class="text-center text-primary d-none">Đang tải...</div>
+                <div id="error" class="text-center text-danger fw-bold"></div>
             </div>
         </div>
+        <p class="text-center mt-3 text-muted">Backend: mnm-t4ca1.free.nf | Frontend: Somee</p>
     </div>
 
     <script>
-        // CHỌN 1 TRONG 2 CÁCH:
-        
-        // CÁCH 1: Dùng fetch (cần CORS)
-        const API_URL = 'http://mnm-t4ca1.free.nf/get_users.php';
-        const USE_JSONP = false;
-        
-        // CÁCH 2: Dùng JSONP (không cần CORS) - Đổi thành true nếu CORS lỗi
-        // const API_URL = 'http://mnm-t4cal.free.nf/get_users_jsonp.php';
-        // const USE_JSONP = true;
-        
-        // Hàm format ngày giờ
-        function formatDateTime(dateString) {
-            const date = new Date(dateString);
-            const day = date.getDate().toString().padStart(2, '0');
-            const month = (date.getMonth() + 1).toString().padStart(2, '0');
-            const year = date.getFullYear();
-            const hours = date.getHours().toString().padStart(2, '0');
-            const minutes = date.getMinutes().toString().padStart(2, '0');
+        function loadData() {
+            const tableBody = document.getElementById('tableBody');
+            const loading = document.getElementById('loading');
+            const errorDiv = document.getElementById('error');
             
-            return `${day}/${month}/${year} ${hours}:${minutes}`;
-        }
-        
-        // Hàm hiển thị trạng thái
-        function showStatus(message, type) {
-            const statusEl = document.getElementById('status');
-            statusEl.textContent = message;
-            statusEl.className = `status ${type}`;
-            statusEl.style.display = 'block';
-        }
-        
-        // Hàm ẩn trạng thái
-        function hideStatus() {
-            document.getElementById('status').style.display = 'none';
-        }
-        
-        // Hàm load users từ API
-        async function loadUsers() {
-            const btnText = document.getElementById('btnText');
-            const table = document.getElementById('userTable');
-            const tableBody = document.getElementById('userTableBody');
-            const emptyState = document.getElementById('emptyState');
-            
-            // Hiển thị loading
-            btnText.innerHTML = '<span class="spinner"></span> Đang tải...';
-            showStatus('Đang tải dữ liệu...', 'loading');
-            
-            try {
-                let result;
-                
-                if (USE_JSONP) {
-                    // Dùng JSONP
-                    result = await loadViaJSONP();
-                } else {
-                    // Dùng fetch thông thường
-                    const response = await fetch(API_URL, {
-                        method: 'GET',
-                        headers: {
-                            'Content-Type': 'application/json'
+            // Link API của bạn
+            const apiUrl = 'http://mnm-t4ca1.free.nf/get_users.php';
+
+            // Reset giao diện
+            tableBody.innerHTML = '';
+            errorDiv.innerText = '';
+            loading.classList.remove('d-none');
+
+            fetch(apiUrl)
+                .then(response => {
+                    // Kiểm tra xem server có trả về JSON không
+                    return response.text().then(text => {
+                        try {
+                            return JSON.parse(text);
+                        } catch (e) {
+                            // Đây là lỗi phổ biến nhất với InfinityFree (bị chặn bảo mật)
+                            throw new Error("Server không trả về JSON hợp lệ. Có thể bị InfinityFree chặn (Security Check). Nội dung nhận được: " + text.substring(0, 50) + "...");
                         }
                     });
+                })
+                .then(data => {
+                    loading.classList.add('d-none');
                     
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
+                    if (data.error) {
+                        errorDiv.innerText = data.error;
+                        return;
                     }
-                    
-                    result = await response.json();
-                }
-                
-                // Xóa nội dung cũ
-                tableBody.innerHTML = '';
-                
-                if (result.status === 'success' && result.data.length > 0) {
-                    // Hiển thị dữ liệu
-                    result.data.forEach(user => {
-                        const row = document.createElement('tr');
-                        row.innerHTML = `
-                            <td>${user.id}</td>
-                            <td><strong>${user.username}</strong></td>
-                            <td>${user.email}</td>
-                            <td>${formatDateTime(user.created_at)}</td>
+
+                    if (data.length === 0) {
+                        tableBody.innerHTML = '<tr><td colspan="3" class="text-center">Chưa có dữ liệu nào</td></tr>';
+                        return;
+                    }
+
+                    // Duyệt qua từng user và vẽ lên bảng
+                    let html = '';
+                    data.forEach(user => {
+                        html += `
+                            <tr>
+                                <td>${user.id}</td>
+                                <td>${user.username}</td>
+                                <td>${user.email}</td>
+                            </tr>
                         `;
-                        tableBody.appendChild(row);
                     });
-                    
-                    table.style.display = 'table';
-                    emptyState.style.display = 'none';
-                    showStatus(`✅ Tải thành công ${result.count} users`, 'success');
-                } else {
-                    // Không có dữ liệu
-                    table.style.display = 'none';
-                    emptyState.style.display = 'block';
-                    showStatus('ℹ️ Không có dữ liệu', 'success');
-                }
-                
-            } catch (error) {
-                console.error('Error:', error);
-                table.style.display = 'none';
-                emptyState.style.display = 'block';
-                showStatus(`❌ Lỗi: ${error.message}`, 'error');
-            } finally {
-                btnText.innerHTML = '🔄 Tải lại dữ liệu';
-                
-                // Tự động ẩn status sau 3 giây
-                setTimeout(() => {
-                    hideStatus();
-                }, 3000);
-            }
+                    tableBody.innerHTML = html;
+                })
+                .catch(err => {
+                    loading.classList.add('d-none');
+                    console.error(err);
+                    errorDiv.innerText = "Lỗi: " + err.message;
+                });
         }
-        
-        // Hàm load dữ liệu qua JSONP (không cần CORS)
-        function loadViaJSONP() {
-            return new Promise((resolve, reject) => {
-                const callbackName = 'jsonpCallback_' + Date.now();
-                const script = document.createElement('script');
-                
-                window[callbackName] = function(data) {
-                    delete window[callbackName];
-                    document.body.removeChild(script);
-                    resolve(data);
-                };
-                
-                script.src = API_URL + '?callback=' + callbackName;
-                script.onerror = () => {
-                    delete window[callbackName];
-                    document.body.removeChild(script);
-                    reject(new Error('JSONP request failed'));
-                };
-                
-                document.body.appendChild(script);
-            });
-        }
-        
-        // Tự động load khi trang được tải
-        window.addEventListener('DOMContentLoaded', loadUsers);
+
+        // Tự động tải khi mở trang
+        document.addEventListener('DOMContentLoaded', loadData);
     </script>
 </body>
 </html>

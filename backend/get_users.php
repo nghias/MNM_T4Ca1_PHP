@@ -1,67 +1,36 @@
 <?php
-// ===== TẮT OUTPUT BUFFERING - QUAN TRỌNG! =====
-if (ob_get_level()) ob_end_clean();
-
-// ===== CORS Headers - ĐẶT TRƯỚC MỌI OUTPUT =====
-header("Access-Control-Allow-Origin: http://deloyfe.somee.com");
-header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type, Accept, Origin");
-header("Access-Control-Max-Age: 3600");
+// --- CẤU HÌNH CORS (BẮT BUỘC) ---
+header("Access-Control-Allow-Origin: *"); // Cho phép mọi website lấy dữ liệu
 header("Content-Type: application/json; charset=UTF-8");
+header("Access-Control-Allow-Methods: GET");
 
-// Xử lý preflight request
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit(0);
-}
-
-// Thông tin kết nối Database
+// --- KẾT NỐI DATABASE ---
 $servername = "sql100.infinityfree.com";
 $username   = "if0_40577807";
 $password   = "Nghia13052004";
-$dbname     = "if0_40577807_demo";
+$dbname     = "if0_40577807_demo"; // Đảm bảo bạn đã tạo DB tên 'demo' như bước trước
 
-// Kết nối Database
 $conn = new mysqli($servername, $username, $password, $dbname);
 
 // Kiểm tra kết nối
 if ($conn->connect_error) {
-    http_response_code(500);
-    echo json_encode([
-        "status" => "error",
-        "message" => "Kết nối DB thất bại",
-        "data" => []
-    ]);
-    exit();
+    die(json_encode(["error" => "Lỗi kết nối DB: " . $conn->connect_error]));
 }
 
-// Query lấy tất cả users
-$sql = "SELECT id, username, email, created_at FROM users ORDER BY created_at DESC";
+// --- LẤY DỮ LIỆU ---
+$sql = "SELECT * FROM users ORDER BY id DESC"; // Lấy user mới nhất lên đầu
 $result = $conn->query($sql);
 
-$users = [];
+$users = array();
 
-if ($result && $result->num_rows > 0) {
+if ($result->num_rows > 0) {
     while($row = $result->fetch_assoc()) {
         $users[] = $row;
     }
-    
-    http_response_code(200);
-    echo json_encode([
-        "status" => "success",
-        "message" => "Lấy dữ liệu thành công",
-        "count" => count($users),
-        "data" => $users
-    ]);
-} else {
-    http_response_code(200);
-    echo json_encode([
-        "status" => "success",
-        "message" => "Không có dữ liệu",
-        "count" => 0,
-        "data" => []
-    ]);
 }
+
+// Trả về JSON
+echo json_encode($users);
 
 $conn->close();
 ?>
