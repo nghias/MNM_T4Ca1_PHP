@@ -42,7 +42,9 @@
             const errorDiv = document.getElementById('error');
             
             // Link API của bạn
-            const apiUrl = 'http://mnm-t4ca1.free.nf/get_users.php';
+            // Dùng proxy allorigins để lách luật
+            const targetUrl = 'http://mnm-t4ca1.free.nf/get_users.php';
+            const apiUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(targetUrl)}`;
 
             // Reset giao diện
             tableBody.innerHTML = '';
@@ -50,18 +52,9 @@
             loading.classList.remove('d-none');
 
             fetch(apiUrl)
-                .then(response => {
-                    // Kiểm tra xem server có trả về JSON không
-                    return response.text().then(text => {
-                        try {
-                            return JSON.parse(text);
-                        } catch (e) {
-                            // Đây là lỗi phổ biến nhất với InfinityFree (bị chặn bảo mật)
-                            throw new Error("Server không trả về JSON hợp lệ. Có thể bị InfinityFree chặn (Security Check). Nội dung nhận được: " + text.substring(0, 50) + "...");
-                        }
-                    });
-                })
+                .then(response => response.json())
                 .then(data => {
+                    const realData = JSON.parse(data.contents); 
                     loading.classList.add('d-none');
                     
                     if (data.error) {
