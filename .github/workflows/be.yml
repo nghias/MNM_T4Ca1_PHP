@@ -21,7 +21,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           local-dir: ./backend/       # Lấy code từ thư mục này ở GitHub
-          server-dir: htdocs/ # Đẩy vào thư mục con 'backend' trên Host
+          server-dir: htdocs/backend/ # Đẩy vào thư mục con 'backend' trên Host
           exclude: |
             **/.git*
             **/.git*/**
