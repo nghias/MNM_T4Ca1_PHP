@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: mnm_php_app
+    ports:
+      - "8080:80" # Map port 80 trong container ra port 8080 của máy
+    volumes:
+      # Mount thư mục để code thay đổi thì server cập nhật ngay (Dev mode)
+      - ./frontend:/var/www/html
+      - ./backend:/var/www/html/backend
+    restart: always
