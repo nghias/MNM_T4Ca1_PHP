@@ -1,9 +1,10 @@
 <?php
-// 1. Cấu hình CORS (Cho phép Somee gửi dữ liệu sang)
-// Thay dấu * bằng 'http://deloyfe.somee.com' nếu muốn bảo mật hơn
+// Cho phép truy cập từ mọi nguồn (hoặc thay * bằng http://deloyfe.somee.com)
 header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
-header("Access-Control-Allow-Methods: POST, OPTIONS"); // Cho phép phương thức POST
+header("Access-Control-Allow-Credentials: true");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+header("Content-Type: application/json; charset=UTF-8");
 
 // Xử lý preflight request (của trình duyệt)
 if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
