@@ -1,36 +1,24 @@
 <?php
-// --- CẤU HÌNH CORS (BẮT BUỘC) ---
-header("Access-Control-Allow-Origin: *"); // Cho phép mọi website lấy dữ liệu
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json; charset=UTF-8");
-header("Access-Control-Allow-Methods: GET");
+include 'db.php';
 
-// --- KẾT NỐI DATABASE ---
-$servername = "sql100.infinityfree.com";
-$username   = "if0_40577807";
-$password   = "Nghia13052004";
-$dbname     = "if0_40577807_demo"; // Đảm bảo bạn đã tạo DB tên 'demo' như bước trước
-
-$conn = new mysqli($servername, $username, $password, $dbname);
-
-// Kiểm tra kết nối
-if ($conn->connect_error) {
-    die(json_encode(["error" => "Lỗi kết nối DB: " . $conn->connect_error]));
-}
-
-// --- LẤY DỮ LIỆU ---
-$sql = "SELECT * FROM users ORDER BY id DESC"; // Lấy user mới nhất lên đầu
-$result = $conn->query($sql);
-
-$users = array();
-
-if ($result->num_rows > 0) {
-    while($row = $result->fetch_assoc()) {
-        $users[] = $row;
+try {
+    $sql = "SELECT * FROM users";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $data = $stmt->fetchAll();
+    if (count($data) > 0) {
+        echo json_encode($data);
+    } else {
+        echo json_encode([
+            ["id" => 1, "username" => "Demo User PDO", "email" => "pdo@test.com"],
+            ["id" => 2, "username" => "Trần Tuấn Nghĩa", "email" => "nva@test2.com"]
+        ]);
     }
+} catch (Exception $e) {
+    http_response_code(500);
+    echo json_encode(["error" => "Lỗi truy vấn: " . $e->getMessage()]);
 }
-
-// Trả về JSON
-echo json_encode($users);
-
-$conn->close();
 ?>

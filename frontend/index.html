@@ -1,98 +1,42 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Danh Sách User</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body class="bg-light">
-
-    <div class="container mt-5">
-        <h2 class="text-center mb-4">Danh sách User từ InfinityFree</h2>
-        
-        <div class="text-center mb-3">
-            <button onclick="loadData()" class="btn btn-success">🔄 Tải dữ liệu mới nhất</button>
-        </div>
-
-        <div class="card shadow">
-            <div class="card-body">
-                <table class="table table-striped table-hover">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>ID</th>
-                            <th>Username</th>
-                            <th>Email</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tableBody">
-                        </tbody>
-                </table>
-                <div id="loading" class="text-center text-primary d-none">Đang tải...</div>
-                <div id="error" class="text-center text-danger fw-bold"></div>
-            </div>
-        </div>
-        <p class="text-center mt-3 text-muted">Backend: mnm-t4ca1.free.nf | Frontend: Somee</p>
-    </div>
-
-    <script>
-        function loadData() {
-            const tableBody = document.getElementById('tableBody');
-            const loading = document.getElementById('loading');
-            const errorDiv = document.getElementById('error');
-            
-            // Link API của bạn
-            // Dùng proxy allorigins để lách luật
-            const apiUrl = 'http://mnm-t4ca1.free.nf/get_users.php';
-
-            // Reset giao diện
-            tableBody.innerHTML = '';
-            errorDiv.innerText = '';
-            loading.classList.remove('d-none');
-
-            fetch(apiUrl)
-                .then(response => response.json())
-                .then(data => {
-                    // 1. Lấy dữ liệu thật từ trong gói Proxy ra
-                    const realData = JSON.parse(data.contents); 
-                    console.log(realData)
-                    
-                    loading.classList.add('d-none');
-                    
-                    // 2. Kiểm tra lỗi trên realData (chứ không phải data)
-                    if (realData.error) {
-                        errorDiv.innerText = realData.error;
-                        return;
-                    }
-
-                    // 3. Kiểm tra độ dài trên realData
-                    if (realData.length === 0) {
-                        tableBody.innerHTML = '<tr><td colspan="3" class="text-center">Chưa có dữ liệu nào</td></tr>';
-                        return;
-                    }
-
-                    // 4. Duyệt qua realData để vẽ bảng (QUAN TRỌNG: PHẢI LÀ realData)
-                    let html = '';
-                    realData.forEach(user => {  // <--- Sửa chỗ này từ data thành realData
-                        html += `
-                            <tr>
-                                <td>${user.id}</td>
-                                <td>${user.username}</td>
-                                <td>${user.email}</td>
-                            </tr>
-                        `;
-                    });
-                    tableBody.innerHTML = html;
-                })
-                .catch(err => {
-                    loading.classList.add('d-none');
-                    console.error(err);
-                    errorDiv.innerText = "Lỗi: " + err.message;
-                });
+    <title>PHP Frontend</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            padding: 20px;
         }
 
-        // Tự động tải khi mở trang
-        document.addEventListener('DOMContentLoaded', loadData);
+        .card {
+            border: 1px solid #ddd;
+            padding: 10px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Danh sách Users (Gọi từ PHP API)</h1>
+    <div id="user-list">Đang tải...</div>
+
+    <script>
+        const API_URL = 'http://mnm-t4ca1.free.nf/get_users.php';
+        fetch(API_URL)
+            .then(response => response.json())
+            .then(data => {
+                const list = document.getElementById('user-list');
+                list.innerHTML = data.map(user => `
+                    <div class="card">
+                        <h3>${user.username}</h3>
+                        <p>${user.email}</p>
+                    </div>
+                `).join('');
+            })
+            .catch(err => console.error('Lỗi:', err));
     </script>
 </body>
+
 </html>
