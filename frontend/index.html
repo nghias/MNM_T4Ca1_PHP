@@ -3,96 +3,300 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Thêm User (Somee to InfinityFree)</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Danh sách Users</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            padding: 30px;
+        }
+        
+        h1 {
+            color: #667eea;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2.5em;
+        }
+        
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .status {
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+        }
+        
+        .status.loading {
+            background: #ffeaa7;
+            color: #d63031;
+        }
+        
+        .status.success {
+            background: #00b894;
+            color: white;
+        }
+        
+        .status.error {
+            background: #d63031;
+            color: white;
+        }
+        
+        .table-wrapper {
+            overflow-x: auto;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        
+        thead {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        th {
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 14px;
+            letter-spacing: 1px;
+        }
+        
+        tbody tr {
+            transition: background 0.2s;
+        }
+        
+        tbody tr:hover {
+            background: #f8f9fa;
+        }
+        
+        tbody tr:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        tbody tr:nth-child(even):hover {
+            background: #e9ecef;
+        }
+        
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #6c757d;
+        }
+        
+        .empty-state svg {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+        
+        .empty-state h3 {
+            font-size: 24px;
+            margin-bottom: 10px;
+        }
+        
+        .empty-state p {
+            font-size: 16px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+        }
+    </style>
 </head>
-<body class="bg-light">
-
-    <div class="container mt-5">
-        <div class="card shadow p-4 mx-auto" style="max-width: 500px;">
-            <h3 class="text-center mb-4">Thêm User Mới</h3>
-            
-            <form id="addUserForm">
-                <div class="mb-3">
-                    <label for="username" class="form-label">Tên người dùng:</label>
-                    <input type="text" class="form-control" id="username" placeholder="Nhập tên..." required>
-                </div>
-                
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email:</label>
-                    <input type="email" class="form-control" id="email" placeholder="Nhập email..." required>
-                </div>
-
-                <button type="submit" class="btn btn-primary w-100" id="btnSubmit">Thêm vào Database</button>
-            </form>
-
-            <div id="alertBox" class="alert mt-3 d-none" role="alert"></div>
+<body>
+    <div class="container">
+        <h1>📋 Danh sách Users</h1>
+        
+        <div class="controls">
+            <button class="btn" onclick="loadUsers()">
+                <span id="btnText">🔄 Tải lại dữ liệu</span>
+            </button>
+            <div class="status" id="status"></div>
         </div>
         
-        <p class="text-center mt-3 text-muted">Frontend: Somee | Backend: InfinityFree</p>
+        <div class="table-wrapper">
+            <table id="userTable" style="display: none;">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Ngày tạo</th>
+                    </tr>
+                </thead>
+                <tbody id="userTableBody">
+                </tbody>
+            </table>
+            
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+                <h3>Chưa có dữ liệu</h3>
+                <p>Hiện tại chưa có user nào trong database</p>
+            </div>
+        </div>
     </div>
 
     <script>
-        document.getElementById('addUserForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Lấy dữ liệu từ form
-            const usernameVal = document.getElementById('username').value;
-            const emailVal = document.getElementById('email').value;
-            const btn = document.getElementById('btnSubmit');
-            const alertBox = document.getElementById('alertBox');
-
-            // URL Backend trên InfinityFree
-            // LƯU Ý: Nếu Somee chạy HTTPS mà InfinityFree chạy HTTP thì có thể bị lỗi Mixed Content.
-            // Hãy thử http:// trước.
-            const apiUrl = 'http://mnm-t4ca1.free.nf/add_user.php'; 
-
-            // Hiệu ứng loading
-            btn.disabled = true;
-            btn.innerText = "Đang xử lý...";
-            alertBox.classList.add('d-none');
-
-            // Gửi dữ liệu đi
-            fetch(apiUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ username: usernameVal, email: emailVal })
-            })
-            .then(response => {
-                // Kiểm tra xem phản hồi có phải JSON không (InfinityFree hay trả về HTML lỗi bảo mật)
-                return response.text().then(text => {
-                    try {
-                        return JSON.parse(text);
-                    } catch (err) {
-                        throw new Error("Server không trả về JSON. Có thể do chặn bảo mật. Nội dung trả về: " + text.substring(0, 100));
+        const API_URL = 'http://mnm-t4cal.free.nf/get_users.php';
+        
+        // Hàm format ngày giờ
+        function formatDateTime(dateString) {
+            const date = new Date(dateString);
+            const day = date.getDate().toString().padStart(2, '0');
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const year = date.getFullYear();
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            
+            return `${day}/${month}/${year} ${hours}:${minutes}`;
+        }
+        
+        // Hàm hiển thị trạng thái
+        function showStatus(message, type) {
+            const statusEl = document.getElementById('status');
+            statusEl.textContent = message;
+            statusEl.className = `status ${type}`;
+            statusEl.style.display = 'block';
+        }
+        
+        // Hàm ẩn trạng thái
+        function hideStatus() {
+            document.getElementById('status').style.display = 'none';
+        }
+        
+        // Hàm load users từ API
+        async function loadUsers() {
+            const btnText = document.getElementById('btnText');
+            const table = document.getElementById('userTable');
+            const tableBody = document.getElementById('userTableBody');
+            const emptyState = document.getElementById('emptyState');
+            
+            // Hiển thị loading
+            btnText.innerHTML = '<span class="spinner"></span> Đang tải...';
+            showStatus('Đang tải dữ liệu...', 'loading');
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json'
                     }
                 });
-            })
-            .then(data => {
-                alertBox.classList.remove('d-none');
-                if(data.status === 'success') {
-                    alertBox.className = 'alert alert-success mt-3';
-                    alertBox.innerText = data.message;
-                    document.getElementById('addUserForm').reset(); // Xóa form
-                } else {
-                    alertBox.className = 'alert alert-danger mt-3';
-                    alertBox.innerText = data.message;
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
                 }
-            })
-            .catch(error => {
-                console.error('Lỗi:', error);
-                alertBox.classList.remove('d-none');
-                alertBox.className = 'alert alert-danger mt-3';
-                alertBox.innerText = "Lỗi kết nối! (F12 để xem chi tiết). " + error.message;
-            })
-            .finally(() => {
-                btn.disabled = false;
-                btn.innerText = "Thêm vào Database";
-            });
-        });
+                
+                const result = await response.json();
+                
+                // Xóa nội dung cũ
+                tableBody.innerHTML = '';
+                
+                if (result.status === 'success' && result.data.length > 0) {
+                    // Hiển thị dữ liệu
+                    result.data.forEach(user => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${user.id}</td>
+                            <td><strong>${user.username}</strong></td>
+                            <td>${user.email}</td>
+                            <td>${formatDateTime(user.created_at)}</td>
+                        `;
+                        tableBody.appendChild(row);
+                    });
+                    
+                    table.style.display = 'table';
+                    emptyState.style.display = 'none';
+                    showStatus(`✅ Tải thành công ${result.count} users`, 'success');
+                } else {
+                    // Không có dữ liệu
+                    table.style.display = 'none';
+                    emptyState.style.display = 'block';
+                    showStatus('ℹ️ Không có dữ liệu', 'success');
+                }
+                
+            } catch (error) {
+                console.error('Error:', error);
+                table.style.display = 'none';
+                emptyState.style.display = 'block';
+                showStatus(`❌ Lỗi: ${error.message}`, 'error');
+            } finally {
+                btnText.innerHTML = '🔄 Tải lại dữ liệu';
+                
+                // Tự động ẩn status sau 3 giây
+                setTimeout(() => {
+                    hideStatus();
+                }, 3000);
+            }
+        }
+        
+        // Tự động load khi trang được tải
+        window.addEventListener('DOMContentLoaded', loadUsers);
     </script>
-    <!-- dắ -->
 </body>
 </html>
