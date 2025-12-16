@@ -18,7 +18,7 @@ $options = [
     PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     PDO::ATTR_EMULATE_PREPARES   => false,
     // Bắt buộc sử dụng SSL
-    PDO::MYSQL_ATTR_SSL_CA       => __DIR__ . '/cacert.pem', 
+    PDO::MYSQL_ATTR_SSL_CA       => __DIR__ . '/isrgrootx1.pem', 
     PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false, // Tạm tắt xác thực tên miền để dễ debug
 ];
 
