@@ -1,14 +1,18 @@
 <?php
-// ===== CORS Headers =====
-header("Access-Control-Allow-Origin: *");
-header("Access-Control-Allow-Methods: GET, OPTIONS");
-header("Access-Control-Allow-Headers: Content-Type");
+// ===== TẮT OUTPUT BUFFERING - QUAN TRỌNG! =====
+if (ob_get_level()) ob_end_clean();
+
+// ===== CORS Headers - ĐẶT TRƯỚC MỌI OUTPUT =====
+header("Access-Control-Allow-Origin: http://deloyfe.somee.com");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS");
+header("Access-Control-Allow-Headers: Content-Type, Accept, Origin");
+header("Access-Control-Max-Age: 3600");
 header("Content-Type: application/json; charset=UTF-8");
 
 // Xử lý preflight request
-if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
-    exit();
+    exit(0);
 }
 
 // Thông tin kết nối Database
