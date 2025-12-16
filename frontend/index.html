@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm User (Somee to InfinityFree)</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+
+    <div class="container mt-5">
+        <div class="card shadow p-4 mx-auto" style="max-width: 500px;">
+            <h3 class="text-center mb-4">Thêm User Mới</h3>
+            
+            <form id="addUserForm">
+                <div class="mb-3">
+                    <label for="username" class="form-label">Tên người dùng:</label>
+                    <input type="text" class="form-control" id="username" placeholder="Nhập tên..." required>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email:</label>
+                    <input type="email" class="form-control" id="email" placeholder="Nhập email..." required>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100" id="btnSubmit">Thêm vào Database</button>
+            </form>
+
+            <div id="alertBox" class="alert mt-3 d-none" role="alert"></div>
+        </div>
+        
+        <p class="text-center mt-3 text-muted">Frontend: Somee | Backend: InfinityFree</p>
+    </div>
+
+    <script>
+        document.getElementById('addUserForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            // Lấy dữ liệu từ form
+            const usernameVal = document.getElementById('username').value;
+            const emailVal = document.getElementById('email').value;
+            const btn = document.getElementById('btnSubmit');
+            const alertBox = document.getElementById('alertBox');
+
+            // URL Backend trên InfinityFree
+            // LƯU Ý: Nếu Somee chạy HTTPS mà InfinityFree chạy HTTP thì có thể bị lỗi Mixed Content.
+            // Hãy thử http:// trước.
+            const apiUrl = 'http://mnm-t4ca1.free.nf/add_user.php'; 
+
+            // Hiệu ứng loading
+            btn.disabled = true;
+            btn.innerText = "Đang xử lý...";
+            alertBox.classList.add('d-none');
+
+            // Gửi dữ liệu đi
+            fetch(apiUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ username: usernameVal, email: emailVal })
+            })
+            .then(response => {
+                // Kiểm tra xem phản hồi có phải JSON không (InfinityFree hay trả về HTML lỗi bảo mật)
+                return response.text().then(text => {
+                    try {
+                        return JSON.parse(text);
+                    } catch (err) {
+                        throw new Error("Server không trả về JSON. Có thể do chặn bảo mật. Nội dung trả về: " + text.substring(0, 100));
+                    }
+                });
+            })
+            .then(data => {
+                alertBox.classList.remove('d-none');
+                if(data.status === 'success') {
+                    alertBox.className = 'alert alert-success mt-3';
+                    alertBox.innerText = data.message;
+                    document.getElementById('addUserForm').reset(); // Xóa form
+                } else {
+                    alertBox.className = 'alert alert-danger mt-3';
+                    alertBox.innerText = data.message;
+                }
+            })
+            .catch(error => {
+                console.error('Lỗi:', error);
+                alertBox.classList.remove('d-none');
+                alertBox.className = 'alert alert-danger mt-3';
+                alertBox.innerText = "Lỗi kết nối! (F12 để xem chi tiết). " + error.message;
+            })
+            .finally(() => {
+                btn.disabled = false;
+                btn.innerText = "Thêm vào Database";
+            });
+        });
+    </script>
+</body>
+</html>
