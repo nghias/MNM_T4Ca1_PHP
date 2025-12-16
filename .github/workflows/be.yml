@@ -22,7 +22,7 @@ jobs:
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftp
           port: 21
-          
+          # đá
           # CẤU HÌNH THƯ MỤC QUAN TRỌNG
           local-dir: ./backend/        # Thư mục nguồn trên GitHub muốn đẩy đi
           server-dir: ./htdocs/        # Thư mục đích trên InfinityFree (bắt buộc là htdocs)
