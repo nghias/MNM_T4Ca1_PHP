@@ -2,38 +2,6 @@ name: Deploy Backend to InfinityFree
 on:
   push:
     branches:
-      - main  # Hoặc 'master' tùy tên nhánh chính của bạn
-    paths:
-      - 'backend/**' # Chỉ chạy khi có thay đổi trong thư mục backend
-
-jobs:
-  web-deploy:
-    name: 🎉 Deploy to InfinityFree
-    runs-on: ubuntu-latest
-    steps:
-      - name: 🚚 Get latest code
-        uses: actions/checkout@v4
-
-      - name: 📂 Sync files via FTP
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ftpupload.net        # Host FTP mặc định của InfinityFree
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftp
-          port: 21
-          # đá
-          # CẤU HÌNH THƯ MỤC QUAN TRỌNG
-          local-dir: ./backend/        # Thư mục nguồn trên GitHub muốn đẩy đi
-          server-dir: ./htdocs/        # Thư mục đích trên InfinityFree (bắt buộc là htdocs)
-          
-          # Tùy chọn: Xóa file trên host nếu không có trong git (cẩn thận khi dùng)
-          # delete: true
-
-name: Deploy Backend to InfinityFree
-on:
-  push:
-    branches:
       - main
     paths:
       - 'backend/**' # Chỉ chạy khi có thay đổi ở thư mục backend
