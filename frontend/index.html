@@ -54,22 +54,26 @@
             fetch(apiUrl)
                 .then(response => response.json())
                 .then(data => {
+                    // 1. Lấy dữ liệu thật từ trong gói Proxy ra
                     const realData = JSON.parse(data.contents); 
+                    
                     loading.classList.add('d-none');
                     
-                    if (data.error) {
-                        errorDiv.innerText = data.error;
+                    // 2. Kiểm tra lỗi trên realData (chứ không phải data)
+                    if (realData.error) {
+                        errorDiv.innerText = realData.error;
                         return;
                     }
 
-                    if (data.length === 0) {
+                    // 3. Kiểm tra độ dài trên realData
+                    if (realData.length === 0) {
                         tableBody.innerHTML = '<tr><td colspan="3" class="text-center">Chưa có dữ liệu nào</td></tr>';
                         return;
                     }
 
-                    // Duyệt qua từng user và vẽ lên bảng
+                    // 4. Duyệt qua realData để vẽ bảng (QUAN TRỌNG: PHẢI LÀ realData)
                     let html = '';
-                    data.forEach(user => {
+                    realData.forEach(user => {  // <--- Sửa chỗ này từ data thành realData
                         html += `
                             <tr>
                                 <td>${user.id}</td>
