@@ -1,53 +1,39 @@
 <?php
-// Cấu hình header để trả về JSON và hỗ trợ tiếng Việt
-header('Content-Type: application/json; charset=utf-8');
-header("Access-Control-Allow-Origin: *"); // Cho phép gọi API từ domain khác (CORS)
+// Thông tin kết nối lấy từ hình ảnh của bạn
+$servername = "sql100.infinityfree.com";
+$username = "if0_40577807";
+$password = "Nghia13052004";
+$dbname = "if0_40577807_demo";
 
-// Thông tin kết nối từ hình ảnh
-$host = 'gateway01.ap-southeast-1.prod.aws.tidbcloud.com';
-$port = '4000';
-$db   = 'test';
-$user = '4MoqUaUd1wnWMGN.root';
-$pass = 'EeQm8Gx6DWUidjQi';
+// Tạo kết nối
+$conn = new mysqli($servername, $username, $password, $dbname);
 
-// Chuỗi kết nối (DSN)
-$dsn = "mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4";
-
-$options = [
-    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    PDO::ATTR_EMULATE_PREPARES   => false,
-    // Bắt buộc sử dụng SSL
-    PDO::MYSQL_ATTR_SSL_CA       => __DIR__ . '/isrgrootx1.pem', 
-    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false, // Tạm tắt xác thực tên miền để dễ debug
-];
-
-try {
-    $pdo = new PDO($dsn, $user, $pass, $options);
-
-    // 2. Viết câu truy vấn lấy các trường yêu cầu
-    $sql = "SELECT MaPhong, Ten, Gia, DienTich, HinhAnh FROM phong";
-    
-    // 3. Thực thi truy vấn
-    $stmt = $pdo->prepare($sql);
-    $stmt->execute();
-    
-    // 4. Lấy dữ liệu
-    $data = $stmt->fetchAll();
-
-    // 5. Trả về kết quả dạng JSON
-    echo json_encode([
-        'status' => 'success',
-        'count' => count($data),
-        'data' => $data
-    ], JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT);
-// dsa
-} catch (\PDOException $e) {
-    // Xử lý lỗi kết nối
-    http_response_code(500);
-    echo json_encode([
-        'status' => 'error',
-        'message' => 'Lỗi kết nối CSDL: ' . $e->getMessage()
-    ], JSON_UNESCAPED_UNICODE);
+// Kiểm tra kết nối
+if ($conn->connect_error) {
+    die("Kết nối thất bại: " . $conn->connect_error);
 }
+
+// Thiết lập encoding UTF-8 để hiển thị tiếng Việt không bị lỗi
+$conn->set_charset("utf8");
+
+// --- PHẦN LẤY DỮ LIỆU ---
+
+// SQL query: Thay 'users' bằng tên bảng thực tế của bạn trong phpMyAdmin
+$sql = "SELECT id, username, email FROM users";
+$result = $conn->query($sql);
+
+$data = array();
+
+if ($result->num_rows > 0) {
+    // Đưa dữ liệu vào mảng
+    while($row = $result->fetch_assoc()) {
+        $data[] = $row;
+    }
+}
+
+// Trả về dữ liệu dạng JSON
+header('Content-Type: application/json');
+echo json_encode($data);
+
+$conn->close();
 ?>
