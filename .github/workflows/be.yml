@@ -29,3 +29,31 @@ jobs:
           
           # Tùy chọn: Xóa file trên host nếu không có trong git (cẩn thận khi dùng)
           # delete: true
+
+name: Deploy Backend to InfinityFree
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'backend/**' # Chỉ chạy khi có thay đổi ở thư mục backend
+
+jobs:
+  api-deploy:
+    name: Deploy Backend PHP
+    runs-on: ubuntu-latest
+    steps:
+      - name: Lấy code mới nhất
+        uses: actions/checkout@v2
+
+      - name: Upload Backend lên thư mục con (htdocs/backend)
+        uses: SamKirkland/FTP-Deploy-Action@4.3.0
+        with:
+          server: ftpupload.net
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          local-dir: ./backend/       # Lấy code từ thư mục này ở GitHub
+          server-dir: mnm-t4ca1.free.nf/htdocs/backend/ # Đẩy vào thư mục con 'backend' trên Host
+          exclude: |
+            **/.git*
+            **/.git*/**
