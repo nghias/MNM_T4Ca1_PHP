@@ -14,16 +14,15 @@ $pass = 'EeQm8Gx6DWUidjQi';
 $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4";
 
 $options = [
-    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION, // Báo lỗi dạng Exception
-    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,     // Trả về mảng kết hợp
+    PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
+    PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
     PDO::ATTR_EMULATE_PREPARES   => false,
-    // TiDB Cloud yêu cầu kết nối bảo mật (SSL). 
-    // Dòng dưới giúp bỏ qua xác thực chứng chỉ CA nếu localhost không có sẵn (chỉ dùng khi dev)
-    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false, 
+    // Bắt buộc sử dụng SSL
+    PDO::MYSQL_ATTR_SSL_CA       => __DIR__ . '/cacert.pem', 
+    PDO::MYSQL_ATTR_SSL_VERIFY_SERVER_CERT => false, // Tạm tắt xác thực tên miền để dễ debug
 ];
 
 try {
-    // 1. Tạo kết nối
     $pdo = new PDO($dsn, $user, $pass, $options);
 
     // 2. Viết câu truy vấn lấy các trường yêu cầu
