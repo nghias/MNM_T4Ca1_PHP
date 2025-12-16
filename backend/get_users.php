@@ -22,3 +22,4 @@ try {
     echo json_encode(["error" => "Lỗi truy vấn: " . $e->getMessage()]);
 }
 ?>
+<!-- fafaw -->
