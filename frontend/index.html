@@ -60,7 +60,7 @@
         // --- 1. HÀM TẢI DANH SÁCH (GET) ---
         async function loadData() {
             try {
-                const response = await fetch('backend/api.php');
+                const response = await fetch('http://localhost:3001/api.php');
                 const data = await response.json();
                 
                 const tableBody = document.getElementById('userTableBody');
@@ -81,7 +81,6 @@
             }
         }
 
-        // --- 2. HÀM THÊM MỚI (POST) ---
         document.getElementById('addForm').addEventListener('submit', async function(e) {
             e.preventDefault(); // Ngăn trang web load lại
 
@@ -90,7 +89,7 @@
 
             // Gửi dữ liệu sang PHP
             try {
-                const response = await fetch('backend/api.php', {
+                const response = await fetch('http://localhost:3001/api.php', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ username: usernameVal, email: emailVal })

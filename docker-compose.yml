@@ -1,31 +1,60 @@
 version: '3.8'
 
 services:
-  # Dịch vụ 1: Backend PHP
+  # 1. Backend PHP
   backend:
-    build: ./backend             # Đường dẫn tới thư mục chứa Dockerfile backend
+    build: ./backend
     container_name: mnm_php_backend
     ports:
-      - "3000:80"                # Map port 80 trong container ra port 3000 máy ngoài
+      - "3001:80"
     volumes:
-      - ./backend:/var/www/html  # Mount code để sửa đổi trực tiếp
+      - ./backend:/var/www/html
     networks:
       - app-network
 
-  # Dịch vụ 2: Frontend HTML
+  # 2. Frontend HTML
   frontend:
-    build: ./frontend            # Đường dẫn tới thư mục chứa Dockerfile frontend
+    build: ./frontend
     container_name: mnm_php_frontend
     ports:
-      - "8081:80"                # Map port 80 trong container ra port 8081 máy ngoài
+      - "8081:80"
     volumes:
       - ./frontend:/usr/share/nginx/html
     depends_on:
-      - backend                  # Frontend sẽ chạy sau khi Backend đã bật
+      - backend
     networks:
       - app-network
 
-# Tạo mạng chung để 2 container nhìn thấy nhau (nếu cần gọi nội bộ)
+  # 3. Database MySQL (Mới thêm)
+  db:
+    image: mysql:5.7 # Dùng bản 5.7 cho ổn định, giống hosting
+    container_name: mnm_mysql_db
+    environment:
+      MYSQL_ROOT_PASSWORD: root  # Mật khẩu root
+      MYSQL_DATABASE: my_database # Tên database tự tạo
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - app-network
+
+  # 4. phpMyAdmin (Giao diện quản lý DB - Mới thêm)
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: mnm_phpmyadmin
+    links:
+      - db
+    environment:
+      PMA_HOST: db
+      PMA_PORT: 3306
+    ports:
+      - "8082:80" # Truy cập tại localhost:8082
+    networks:
+      - app-network
+
+# Tạo nơi lưu dữ liệu DB để không bị mất khi tắt Docker
+volumes:
+  db_data:
+
 networks:
   app-network:
     driver: bridge

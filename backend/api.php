@@ -1,4 +1,12 @@
 <?php
+header("Access-Control-Allow-Origin: *"); // Cho phép mọi nguồn truy cập
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS"); // Cho phép các phương thức
+header("Access-Control-Allow-Headers: Content-Type"); // Cho phép gửi dữ liệu JSON
+
+if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
+    http_response_code(200);
+    exit();
+}
 // --- CẤU HÌNH KẾT NỐI ---
 $servername = "sql100.infinityfree.com";
 $username = "if0_40577807";
