@@ -7,7 +7,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
     http_response_code(200);
     exit();
 }
-// --- CẤU HÌNH KẾT NỐI ---
 $servername = "sql100.infinityfree.com";
 $username = "if0_40577807";
 $password = "Nghia13052004";
